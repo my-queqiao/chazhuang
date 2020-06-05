@@ -2,7 +2,9 @@ package com.jzcs;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -52,13 +54,19 @@ public class ChazhuangMojo extends AbstractMojo {
 					String className1 = className.replace("\\", ".");
 					CtClass ctclass = classPool.get(className1);
 					for (CtMethod ctMethod : ctclass.getDeclaredMethods()) {
-						String methodName = ctMethod.getName();
 						String classname2 = ctclass.getName();
+						String methodName = ctMethod.getName();
+						CtClass[] parameterTypes = ctMethod.getParameterTypes();
+						StringBuilder params = new StringBuilder();
+						for (int i=0;i<parameterTypes.length;i++) {
+							params.append(parameterTypes[i].getName().toString());
+							if(parameterTypes.length-1 != i) {
+								params.append(",");
+							}
+						}
 						if (!ctMethod.isEmpty()) { // have method body
-							StringBuilder before = new StringBuilder();
-							before.append("System.err.println(\"=============="	
-									+ classname2 + "." + methodName	+ " ==============\");\n");
-							ctMethod.insertBefore(before.toString());
+							String insertMethod = insertMethod(classname2,methodName,params.toString());
+							ctMethod.insertBefore(insertMethod);
 						}
 					}
 					if(!ctclass.isInterface()) {
@@ -97,5 +105,36 @@ public class ChazhuangMojo extends AbstractMojo {
 				listAllFile(file,classNames);
 			}
 		}
+	}
+	public static String insertMethod(String classname2,String methodName,String params) {
+		return  "				java.util.Date now1234 = new java.util.Date();\r\n" + 
+				"				java.text.DateFormat df1234 = new java.text.SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss:sss\");\r\n" + 
+				"				String format1234 = df1234.format(now1234);\r\n" + 
+				"				String currentTimeMillis1234 = String.valueOf(System.currentTimeMillis());\r\n" + 
+				"				String xinxi1234 = \"\"+format1234+\".\"+currentTimeMillis1234+\".\"	\r\n" + 
+				"				+\""+ classname2 +"."+ methodName	+"("+params+")\";\r\n" + 
+				"				// 输出文件\r\n" + 
+				"				java.io.FileWriter fw1234 = null;\r\n" + 
+				"				try {\r\n" + 
+				"					String pathname1234 = \"C:\\\\Users\\\\tom\\\\Desktop\\\\append.txt\";\r\n" + 
+				"					java.io.File filename1234 = new java.io.File(pathname1234);\r\n" + 
+				"					fw1234 = new java.io.FileWriter(filename1234,true);\r\n" + 
+				"					fw1234.write(xinxi1234);\r\n" + 
+				"					fw1234.write(\"\\r\\n\");\r\n" + 
+				"					fw1234.flush();\r\n" + 
+				"				} catch (Exception e) {\r\n" + 
+				"					System.err.println(\"记录方法链出错：\"+e.getMessage());\r\n" + 
+				"				}finally {\r\n" + 
+				"					try {\r\n" + 
+				"						fw1234.close();\r\n" + 
+				"				} catch (java.io.IOException e) {\r\n" + 
+				"				}\r\n"+
+				"				}";
+	}
+	public static void main(String[] args) {
+		Date date = new Date(1591335278828L);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:sss");
+		System.out.println(date);
+		System.out.println(df.format(date));
 	}
 }
