@@ -65,6 +65,7 @@ public class ChazhuangMojo extends AbstractMojo {
 							}
 						}
 						if (!ctMethod.isEmpty()) { // have method body
+							String gen2 = gen.replace("\\", "\\\\");
 							String insertMethod = insertMethod(classname2,methodName,params.toString());
 							ctMethod.insertBefore(insertMethod);
 						}
@@ -106,24 +107,31 @@ public class ChazhuangMojo extends AbstractMojo {
 			}
 		}
 	}
+	/**
+	 * 	插桩方法（字符串）
+	 * @param gen2 记录方法链的文件存放地址。
+	 * @param classname2
+	 * @param methodName
+	 * @param params
+	 * @return
+	 */
 	public static String insertMethod(String classname2,String methodName,String params) {
 		return  "				java.util.Date now1234 = new java.util.Date();\r\n" + 
-				"				java.text.DateFormat df1234 = new java.text.SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss:sss\");\r\n" + 
-				"				String format1234 = df1234.format(now1234);\r\n" + 
 				"				String currentTimeMillis1234 = String.valueOf(System.currentTimeMillis());\r\n" + 
-				"				String xinxi1234 = \"\"+format1234+\".\"+currentTimeMillis1234+\".\"	\r\n" + 
+				"				String xinxi1234 = currentTimeMillis1234+\".\"	\r\n" + 
 				"				+\""+ classname2 +"."+ methodName	+"("+params+")\";\r\n" + 
 				"				// 输出文件\r\n" + 
 				"				java.io.FileWriter fw1234 = null;\r\n" + 
 				"				try {\r\n" + 
-				"					String pathname1234 = \"C:\\\\Users\\\\tom\\\\Desktop\\\\append.txt\";\r\n" + 
+				"					String gen1234 = System.getProperty(\"user.dir\");\r\n" + 
+				"					String pathname1234 = gen1234+\"/chazhuang.txt\";\r\n" + 
 				"					java.io.File filename1234 = new java.io.File(pathname1234);\r\n" + 
 				"					fw1234 = new java.io.FileWriter(filename1234,true);\r\n" + 
 				"					fw1234.write(xinxi1234);\r\n" + 
 				"					fw1234.write(\"\\r\\n\");\r\n" + 
 				"					fw1234.flush();\r\n" + 
 				"				} catch (Exception e) {\r\n" + 
-				"					System.err.println(\"记录方法链出错：\"+e.getMessage());\r\n" + 
+				"					System.err.println(\"记录方法链出错，目标工程的当前方法终止执行：\"+e.getMessage());\r\n" + 
 				"				}finally {\r\n" + 
 				"					try {\r\n" + 
 				"						fw1234.close();\r\n" + 
@@ -132,9 +140,9 @@ public class ChazhuangMojo extends AbstractMojo {
 				"				}";
 	}
 	public static void main(String[] args) {
-		Date date = new Date(1591335278828L);
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:sss");
-		System.out.println(date);
-		System.out.println(df.format(date));
+		String insertMethod = insertMethod("111", "222", "333");
+		System.out.println(insertMethod);
+		System.out.println(System.getProperty("user.dir"));
+		String b = "System.getProperty(\"user.dir\")";
 	}
 }
