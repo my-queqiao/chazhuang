@@ -27,23 +27,23 @@ public class ChazhuangMojo extends AbstractMojo {
 	private MavenProject project;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		System.out.println("============å¼€å§‹å­—èŠ‚ç æ’æ¡©==============");
+		System.out.println("============¿ªÊ¼×Ö½ÚÂë²å×®=============");
 			try {
-				// ç›®æ ‡å·¥ç¨‹æ ¹ç›®å½•ä¸‹çš„\target\classes
+				// Ä¿±ê¹¤³Ì¸ùÄ¿Â¼ÏÂµÄtarget\classes
 				String absolutePath = project.getArtifact().getFile().getAbsolutePath();
-				// å¾—åˆ°ç›®æ ‡å·¥ç¨‹çš„æ‰€æœ‰ä¾èµ–çš„jaråŒ…çš„è·¯å¾„
+				// µÃµ½Ä¿±ê¹¤³ÌµÄËùÓĞÒÀÀµµÄjar°üµÄÂ·¾¶
 				List<String> compileClasspathElements = project.getCompileClasspathElements();
-				// åˆ°é»˜è®¤çš„ç±»åŠ è½½å™¨ä¸­è·å–classæ–‡ä»¶ã€‚mavenæ’ä»¶ä½¿ç”¨çš„æ˜¯è‡ªèº«çš„ç±»åŠ è½½å™¨ï¼Œçœ‹ä¸åˆ°ç›®æ ‡å·¥ç¨‹ä½¿ç”¨çš„ç±»åŠ è½½å™¨åŠ è½½çš„ç±»
+				// µ½Ä¬ÈÏµÄÀà¼ÓÔØÆ÷ÖĞ»ñÈ¡classÎÄ¼ş¡£maven²å¼şÊ¹ÓÃµÄÊÇ×ÔÉíµÄÀà¼ÓÔØÆ÷£¬¿´²»µ½Ä¿±ê¹¤³ÌÊ¹ÓÃµÄÀà¼ÓÔØÆ÷¼ÓÔØµÄÀà
 				ClassPool classPool = ClassPool.getDefault();
-				// å°†ç›®æ ‡é¡¹ç›®æºç classæ–‡ä»¶æ”¾åˆ°æ± ä¸­
+				// ½«Ä¿±êÏîÄ¿Ô´ÂëclassÎÄ¼ş·Åµ½³ØÖĞ
 				classPool.appendClassPath(absolutePath);
-				// å°†ç›®æ ‡é¡¹ç›®ä¾èµ–çš„jaråŒ…çš„classæ”¾å…¥æ± ä¸­
+				// ½«Ä¿±êÏîÄ¿ÒÀÀµµÄjar°üµÄclass·ÅÈë³ØÖĞ
 				for (String e : compileClasspathElements) {
 					classPool.appendClassPath(e);
 				}
 				
-				/**å¾—åˆ°ç›®æ ‡å·¥ç¨‹æ‰€æœ‰çš„è‡ªå®šä¹‰çš„ç±»æ–‡ä»¶ï¼Œä¿®æ”¹classæ–‡ä»¶ã€‚ç±»ä¼¼aop	*/
-				// ç›®æ ‡å·¥ç¨‹æ ¹ç›®å½•
+				/**µÃµ½Ä¿±ê¹¤³ÌËùÓĞµÄ×Ô¶¨ÒåµÄÀàÎÄ¼ş£¬ĞŞ¸ÄclassÎÄ¼ş¡£ÀàËÆaop	*/
+				// Ä¿±ê¹¤³Ì¸ùÄ¿Â¼
 				String gen = System.getProperty("user.dir");
 				List<String> classNames = new ArrayList<>();
 				listAllFile(new File(gen+"/src/main/java"),classNames);
@@ -69,7 +69,7 @@ public class ChazhuangMojo extends AbstractMojo {
 						}
 					}
 					if(!ctclass.isInterface()) {
-						//è¿™é‡Œä¼šå°†è¿™ä¸ªåˆ›å»ºçš„ç±»å¯¹è±¡ç¼–è¯‘ä¸º.classæ–‡ä»¶ï¼Œå¹¶ä¸”å­˜æ”¾åˆ°è¯¥ä½ç½®ï¼ˆä¼šæ›¿æ¢ï¼‰
+						//ÕâÀï»á½«Õâ¸ö´´½¨µÄÀà¶ÔÏó±àÒëÎª.classÎÄ¼ş£¬²¢ÇÒ·Åµ½¸ÃÎ»ÖÃ£¨Ìæ»»Ô­ÎÄ¼ş£©
 						ctclass.writeFile(gen+"/target/classes");
 					}
 				}
@@ -85,7 +85,7 @@ public class ChazhuangMojo extends AbstractMojo {
 			}
 	}
 	/**
-	 * 	è·å–æŒ‡å®šè·¯å¾„ä¸‹çš„æ‰€æœ‰classNameï¼šæŠ¥å+ç±»å
+	 * 	»ñÈ¡Ö¸¶¨Â·¾¶ÏÂµÄËùÓĞclassName£º±¨Ãû¡¢ÀàÃû
 	 * @param f
 	 * @param classNames
 	 */
@@ -95,7 +95,7 @@ public class ChazhuangMojo extends AbstractMojo {
 			//System.out.println(file);
 			String fileLujing = file.toString();
 			int end=fileLujing.lastIndexOf(".java");
-			if(end==fileLujing.length()-5){ // å¿…é¡»æ˜¯javaæ–‡ä»¶
+			if(end==fileLujing.length()-5){ // javaÎÄ¼ş
 				String className = fileLujing.substring(
 						fileLujing.indexOf("src\\main\\java")+14, fileLujing.lastIndexOf(".java"));
 				classNames.add(className);
@@ -106,8 +106,8 @@ public class ChazhuangMojo extends AbstractMojo {
 		}
 	}
 	/**
-	 * 	æ’æ¡©æ–¹æ³•ï¼ˆå­—ç¬¦ä¸²ï¼‰
-	 * @param gen2è®°å½•æ–¹æ³•é“¾çš„æ–‡ä»¶å­˜æ”¾åœ°å€ã€‚
+	 * 	²å×®·½·¨£¨×Ö·û´®£©
+	 * @param gen2 ¼ÇÂ¼·½·¨Á´µÄÎÄ¼ş´æ·ÅµØÖ·
 	 * @param classname2
 	 * @param methodName
 	 * @param params
@@ -118,7 +118,7 @@ public class ChazhuangMojo extends AbstractMojo {
 				"				String currentTimeMillis1234 = String.valueOf(System.currentTimeMillis());\r\n" + 
 				"				String xinxi1234 = currentTimeMillis1234+\".\"	\r\n" + 
 				"				+\""+ classname2 +"."+ methodName	+"("+params+")\";\r\n" + 
-				"				// è¾“å‡ºæ–‡ä»¶\r\n" + 
+				"				// Êä³öÎÄ¼ş\r\n" + 
 				"				java.io.FileWriter fw1234 = null;\r\n" + 
 				"				try {\r\n" + 
 				"					String gen1234 = System.getProperty(\"user.dir\");\r\n" + 
@@ -129,7 +129,7 @@ public class ChazhuangMojo extends AbstractMojo {
 				"					fw1234.write(\"\\r\\n\");\r\n" + 
 				"					fw1234.flush();\r\n" + 
 				"				} catch (Exception e) {\r\n" + 
-				"					System.err.println(\"è®°å½•æ–¹æ³•é“¾å‡ºé”™ï¼Œç›®æ ‡å·¥ç¨‹çš„å½“å‰æ–¹æ³•ç»ˆæ­¢æ‰§è¡Œ:\"+e.getMessage());\r\n" + 
+				"					System.err.println(\"¼ÇÂ¼·½·¨Á´³ö´í£¬Ä¿±ê¹¤³Ì±»²å×®·½·¨ÖÕÖ¹Ö´ĞĞ:\"+e.getMessage());\r\n" + 
 				"				}finally {\r\n" + 
 				"					try {\r\n" + 
 				"						fw1234.close();\r\n" + 
