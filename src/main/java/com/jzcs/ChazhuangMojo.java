@@ -19,7 +19,11 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.MethodInfo;
 @Mojo(name="chazhuang",defaultPhase=LifecyclePhase.COMPILE,requiresDependencyResolution=ResolutionScope.COMPILE)
 public class ChazhuangMojo extends AbstractMojo {
 	
@@ -41,14 +45,15 @@ public class ChazhuangMojo extends AbstractMojo {
 				for (String e : compileClasspathElements) {
 					classPool.appendClassPath(e);
 				}
-				
 				/**得到目标工程所有的自定义的类文件，修改class文件。类似aop	*/
 				// 目标工程根目录
 				String gen = System.getProperty("user.dir");
 				List<String> classNames = new ArrayList<>();
 				listAllFile(new File(gen+"/src/main/java"),classNames);
-				
-				for (String className : classNames) {
+				// mybatis，记录mapper数据库映射类中被调用的方法
+				/*String mybatis = "org.apache.ibatis.session.defaults.DefaultSqlSession";
+				classNames.add(mybatis);*/
+				for (String className : classNames) { // 遍历目标工程的字节码文件
 					String className1 = className.replace("\\", ".");
 					CtClass ctclass = classPool.get(className1);
 					for (CtMethod ctMethod : ctclass.getDeclaredMethods()) {
@@ -62,8 +67,9 @@ public class ChazhuangMojo extends AbstractMojo {
 								params.append(",");
 							}
 						}
+						// 修改目标工程的class字节码文件，插桩
 						if (!ctMethod.isEmpty()) { // have method body
-							String gen2 = gen.replace("\\", "\\\\");
+							//czForMybatis(ctMethod, classname2, methodName, params.toString());
 							String insertMethod = insertMethod(classname2,methodName,params.toString());
 							ctMethod.insertBefore(insertMethod);
 						}
@@ -137,8 +143,73 @@ public class ChazhuangMojo extends AbstractMojo {
 				"				}\r\n"+
 				"				}";
 	}
+	// 记录参数名为statement的值
+	public static String insertMethod2(String classname2,String methodName,String params) {
+		return  "				java.util.Date now1234 = new java.util.Date();\r\n" + 
+				"				String currentTimeMillis1234 = String.valueOf(System.currentTimeMillis());\r\n" + 
+				"				String xinxi1234 = currentTimeMillis1234+\".\"	\r\n" + 
+				"				+\""+ classname2 +"."+ methodName	+"("+params+")\"+statement;\r\n" + 
+				"				// 输出文件\r\n" + 
+				"				java.io.FileWriter fw1234 = null;\r\n" + 
+				"				try {\r\n" + 
+				"					String gen1234 = System.getProperty(\"user.dir\");\r\n" + 
+				"					String pathname1234 = gen1234+\"/chazhuang.txt\";\r\n" + 
+				"					java.io.File filename1234 = new java.io.File(pathname1234);\r\n" + 
+				"					fw1234 = new java.io.FileWriter(filename1234,true);\r\n" + 
+				"					fw1234.write(xinxi1234);\r\n" + 
+				"					fw1234.write(\"\\r\\n\");\r\n" + 
+				"					fw1234.flush();\r\n" + 
+				"				} catch (Exception e) {\r\n" + 
+				"					System.err.println(\"记录方法链出错，目标工程被插桩方法终止执行:\"+e.getMessage());\r\n" + 
+				"				}finally {\r\n" + 
+				"					try {\r\n" + 
+				"						fw1234.close();\r\n" + 
+				"				} catch (java.io.IOException e) {\r\n" + 
+				"				}\r\n"+
+				"				}";
+	}
+	/**
+	 * 	记录类名、方法名、参数类型、参数名为：statement的值（这个参数的值是mapper映射类的类名+方法名）
+	 * @param ctMethod
+	 * @param classname2
+	 * @param methodName
+	 * @param params
+	 * @throws NotFoundException
+	 * @throws CannotCompileException
+	 */
+	private void czForMybatis(CtMethod ctMethod,String classname2,String methodName,String params) throws NotFoundException, CannotCompileException {
+		// 获取字节码文件中某个特定参数名为：statement的值
+		MethodInfo methodInfo = ctMethod.getMethodInfo();
+		CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
+				.getAttribute(LocalVariableAttribute.tag);
+		String[] paramNames = new String[ctMethod.getParameterTypes().length];
+		int pos = Modifier.isStatic(ctMethod.getModifiers()) ? 0 : 1;
+		for (int j = 0; j < paramNames.length; j++) {
+			paramNames[j] = attr.variableName(j + pos);
+		}
+		// paramNames即参数名
+		// 插桩该参数名，打印它的值
+		String nameIsStatement = null;
+		if(paramNames.length <= 0) {
+			nameIsStatement = null;
+		}else {
+			for (String pn : paramNames) {
+				if(pn.equals("statement")) {
+					nameIsStatement = "statement"; // 特定参数名
+				}
+			}
+		}
+		if(nameIsStatement == null) {
+			String insertMethod = insertMethod(classname2,methodName,params.toString());
+			ctMethod.insertBefore(insertMethod);
+		}else {
+			String insertMethod = insertMethod2(classname2,methodName,params.toString());
+			ctMethod.insertBefore(insertMethod);
+		}
+	}
 	public static void main(String[] args) {
-		String insertMethod = insertMethod("111", "222", "333");
+		String insertMethod = insertMethod2("111", "222", "333");
 		System.out.println(insertMethod);
 		System.out.println(System.getProperty("user.dir"));
 		String b = "System.getProperty(\"user.dir\")";
